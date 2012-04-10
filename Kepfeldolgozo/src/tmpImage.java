@@ -5,12 +5,12 @@ public class tmpImage {
 	private int height;
 	private Color[] map = new Color[height*width];
 	
-	public void setColor(int i, int j, Color szin){
-		this.map[i][j]=szin;
+	public void setColor(int i, int j Color szin){
+		this.map[i*j]=szin;
 	}
 	
 	public Color getColor(int i, int j){
-		return map[i][j];
+		return map[i*j];
 	}
 	
 	public int getWidth(){
@@ -18,7 +18,7 @@ public class tmpImage {
 	}
 	
 	public int getHeight(){
-		return length;
+		return height;
 	}
 	
 	public tmpImage(int magas, int szeles){
