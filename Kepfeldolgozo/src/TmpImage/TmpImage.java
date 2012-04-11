@@ -4,14 +4,20 @@ import java.awt.Color;
 public class TmpImage { 
 	private int width;
 	private int height;
-	private Color[] map = new Color[height*width];
+	private Color[][] map;
 	
-	public void setColor(int i, int j, Color szin){
-		this.map[i*j]=szin;
+	public TmpImage(int height, int width){
+		this.width = width;
+		this.height = height;
+		this.map = new Color[this.height][this.width];
 	}
 	
-	public Color getColor(int i, int j){
-		return map[i*j];
+	public void setColor(int row, int col, Color color){
+		this.map[row][col] = color;
+	}
+	
+	public Color getColor(int row, int col){
+		return map[row][col];
 	}
 	
 	public int getWidth(){
@@ -22,8 +28,18 @@ public class TmpImage {
 		return height;
 	}
 	
-	public TmpImage(int magas, int szeles){
-		this.width=szeles;
-		this.height=magas;
+	public String toString() {
+		String out = "";
+		
+		for(int row = 0; row < this.height; row++) {
+			for(int col = 0; col < this.width; col++) {
+				Color current = map[row][col];
+				out += "(" + current.getRed() + "," + current.getGreen() + "," + current.getBlue() + ")" + "\t";
+			}
+			out += "\n";
+		}
+		
+		return out;
 	}
+	
 }

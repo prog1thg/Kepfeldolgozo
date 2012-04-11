@@ -1,5 +1,7 @@
 package readers;
 
+import java.awt.Color;
+
 import TmpImage.TmpImage;
 
 /**
@@ -14,6 +16,7 @@ import TmpImage.TmpImage;
 public class BmpReader implements ImageReader {
 	
 	private ByteReader byteReader;
+	private TmpImage tmp;
 	
 	/**
 	 * The characters identifying the bitmap.
@@ -37,6 +40,9 @@ public class BmpReader implements ImageReader {
 	
 	/**
 	 * Length of the bitmap info header used to describe the bitmap colors, compression etc.
+	 * 0x28	40	windows
+	 * 0x0c	12	os/2.1.x
+	 * 0xfo	240	os/2.2.x
 	 */
 	private int header_size;
 	
@@ -62,7 +68,6 @@ public class BmpReader implements ImageReader {
 	 */
 	private int bits_per_pixel;
 	
-	// TODO Look these things up.
 	/**
 	 * Compression specifications.
 	 * 0	none
@@ -109,22 +114,22 @@ public class BmpReader implements ImageReader {
 	 * 1 byte RED
 	 * 1 byte SET TO ZERO
 	 */
-	private int palette;
+	private int[][] palette;
 	
 	/**
 	 * Depending on the compression specifications, 
 	 * this field contains all the bitmap data bytes
 	 *  which represent indices in the color palette.
 	 */
-	private int bitmap;
+	private int[][] bitmap;
 	
 	public BmpReader(String pathToImage) {
 		this.byteReader = new ByteReader(pathToImage);
 	}
 	
 	public static void main(String args[]) {
-		BmpReader bmp = new BmpReader("res/bmp/test2_24.bmp");
-		bmp.convertToTmpImage();
+		BmpReader img = new BmpReader("res/bmp/test2_24.bmp");
+		img.convertToTmpImage();
 	}
 	
 	@Override
@@ -135,7 +140,15 @@ public class BmpReader implements ImageReader {
 	 */
 	public TmpImage convertToTmpImage() {
 		this.readHeader();
-		return null;
+		
+		this.tmp = new TmpImage(this.height, this.width);
+		
+		this.palette = this.readPalette();
+		this.bitmap = this.readBitmap();
+		
+		System.out.println(this.tmp);
+		
+		return tmp;
 	}
 	
 	private void readHeader() {
@@ -149,11 +162,73 @@ public class BmpReader implements ImageReader {
 		this.width = this.byteReader.readDWord(18);
 		this.height = this.byteReader.readDWord(22);
 		
-		System.out.println("ID: " + this.identifier);
-		System.out.println("ID: " + Integer.toHexString(this.identifier));		
+		this.planes = this.byteReader.readByte(26);
+		this.bits_per_pixel = this.byteReader.readWord(28);
+		this.compression = this.byteReader.readDWord(30);
 		
-		System.out.println("W: " + this.width + " H: " + this.height);
-		System.out.println("W: " + Integer.toHexString(this.width) + " H: " + Integer.toHexString(this.height));
+		this.data_size = this.byteReader.readDWord(34);
+		// As of the specification rounding to the next 4 byte boundary, seems quite unnecessary for now ...
+//		if(this.data_size % 4 != 0) {
+//			this.data_size += 4 - this.data_size % 4;
+//		}
+			
+		this.h_resolution = this.byteReader.readDWord(38);
+		this.v_resolution = this.byteReader.readDWord(42);
+		
+		this.colors = this.byteReader.readDWord(46);
+		this.important_colors = this.byteReader.readDWord(50);
 	}
-
+	
+	private int[][] readPalette() {
+		return null;
+	}
+	
+	private int[][] readBitmap() {
+		int row, col, offset;
+		offset = this.data_offset;
+		
+		// BMP stores rows form down to up
+		for(row = this.height - 1; row >= 0; row--) {
+			for(col = 0; col < this.width; col++) {
+				this.tmp.setColor(
+					row, col,
+					new Color(
+							this.byteReader.readByte(offset + 2)  & 0x000000ff,
+							this.byteReader.readByte(offset + 1)  & 0x000000ff,
+							this.byteReader.readByte(offset)  & 0x000000ff
+					)
+				);
+				System.out.println(
+						"Offset: " + offset + "   " +
+						" R: " + Integer.toHexString(this.byteReader.readByte(offset + 2) & 0x000000ff) +
+						" G: " + Integer.toHexString(this.byteReader.readByte(offset + 1) & 0x000000ff) +
+						" B: " + Integer.toHexString(this.byteReader.readByte(offset) & 0x000000ff)
+				);
+				offset += 3;
+			}
+		}
+		
+		return null;
+	}
+	
+	public String toString() {
+		return 
+			"Identifier: " + "\t\t" + this.identifier  + "\n" +
+			"File size: " + "\t\t" + ((double)this.file_size / 1024) + " KB" + "\n" +
+			"Reserved: " + "\t\t" + this.reserved  + "\n" +
+			"Data Offset: " + "\t\t" + this.data_offset + "\n" +
+			"Header Size: " + "\t\t" + this.header_size  + "\n" +
+			"Width " + "\t\t\t" + this.width  + " pixel" + "\n" +
+			"Height: " + "\t\t" + this.height  + " pixel" + "\n" +
+			"Planes: " + "\t\t" + this.planes  + "\n" +
+			"Bits per Pixel: " + "\t" + this.bits_per_pixel  + "\n" +
+			"Compression: " + "\t\t" + this.compression  + "\n" +
+			"Data Size: " + "\t\t" + this.data_size  + "\n" +
+			"H res: " + "\t\t\t" + this.h_resolution  + "\n" +
+			"V res: " + "\t\t\t" + this.v_resolution  + "\n" +
+			"Colors: " + "\t\t" + this.colors  + "\n" +
+			"Important colors: " + "\t" + this.important_colors  + "\n"
+		;
+	}
+	
 }
