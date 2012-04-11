@@ -1,3 +1,4 @@
+import java.io.File;
 
 public class CommandLineParser {
 
@@ -9,6 +10,7 @@ public class CommandLineParser {
 		String welcome = "Hiányzó paraméter. Segítséghez: -help";
 		String bemenet = "";
 		String kimenet = "";
+		String kiterjesztes = "";
 		String[] transzformacio = new String[MAXARG];
 		String[] effekt = new String[MAXARG];
 		
@@ -45,6 +47,20 @@ public class CommandLineParser {
 	    		System.out.println(welcome);
 	    		System.exit(0);
 	    	}
+	    	// Ha nem létezik a fájl, nincs mirõl tovább beszélni..
+	    	File imgFile = new File(bemenet);
+
+	    	if (!imgFile.exists()) {
+	    		System.out.println("Nem létezõ fájl. (" + bemenet + ")");
+	    		System.exit(0);	    		
+	    	}
+	    	// Ha a teljes bemeneti kép kevesebb, mint 5 karakter, akkor biztos nem jo [pl.: n.jpg már 5 karakter, njpg, jpg, pg pedig nem megfelelõ]
+	    	if (bemenet.length() < 5) {
+	    		System.out.println("Nem megfelelõ formátumú fájl.");
+	    		System.exit(0);
+	    	}
+	    	// Kiterjesztés
+	    	kiterjesztes = bemenet.substring(Math.max(0, bemenet.length() - 3));
 	    	// Default kimenet
 	    	if (kimenet != null && kimenet.length() == 0) {
 	    		kimenet = bemenet + "_new" + kimenet.length();	    		
@@ -61,6 +77,7 @@ public class CommandLineParser {
 	    System.out.println("Transzformáció 2: " + transzformacio[1]);	    
 	    System.out.println("Effekt 1: " + transzformacio[0]);
 	    System.out.println("Effekt 2: " + transzformacio[1]);
+	    System.out.println("Kiterjesztés: " + kiterjesztes);
 		// TODO Auto-generated method stub
 
 	}
