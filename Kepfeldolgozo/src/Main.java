@@ -6,6 +6,11 @@ import tmpimage.TmpImage;
 import writers.ImageWriter;
 import writers.PpmWriter;
 
+
+/**
+ * Teszt Elek
+ */
+
 /**
  * Image Manipulation Software (C) 2012
  * 
