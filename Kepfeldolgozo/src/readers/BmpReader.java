@@ -2,7 +2,8 @@ package readers;
 
 import java.awt.Color;
 
-import TmpImage.TmpImage;
+import tmpimage.TmpImage;
+
 
 /**
  * BMP Reader

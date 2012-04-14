@@ -1,6 +1,6 @@
 package readers;
 
-import TmpImage.TmpImage;
+import tmpimage.TmpImage;
 
 public interface ImageReader {
 	
