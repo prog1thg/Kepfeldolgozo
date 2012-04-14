@@ -2,7 +2,9 @@ import readers.BmpReader;
 import readers.ImageReader;
 import readers.PpmReader;
 
-
+/**
+ * Returns required reader object based on input file's extension
+ */
 public class ReaderFactory {
 	
 	public static ImageReader getReader(String reader, String pathToFile) {
